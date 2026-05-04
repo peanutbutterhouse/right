@@ -3,32 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Forced Model</title>
+    <title>2D Character Controller</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; background-color: #1a1a1a; overflow: hidden; }
-        model-viewer {
-            width: 100%;
+        body { 
+            margin: 0; 
+            background-color: #333; 
+            overflow: hidden; /* Prevent scrollbars during movement */
             height: 100vh;
-            display: block;
-            /* Optional: Add a slight brightness or contrast to make it pop like a sprite */
-            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+            width: 100vw;
+        }
+
+        /* We treat the model-viewer like a 2D sprite */
+        model-viewer {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            --poster-color: transparent;
+        }
+
+        .instructions {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: sans-serif;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
+    <div class="instructions">Use <b>WASD</b> to move your character</div>
+
+    <!-- 
+        Field-of-view set to 0 or very low creates an orthographic (2D) effect.
+        interaction-prompt="none" disables the hand icon.
+    -->
     <model-viewer 
+        id="player"
         src="idle.glb" 
+        shadow-intensity="1" 
         autoplay
-        shadow-intensity="0"
+        field-of-view="10deg"
         interaction-prompt="none"
-        camera-controls="false"
+        camera-orbit="0deg 75deg 10m"
         disable-zoom
-        orbit-sensitivity="0"
-        camera-orbit="0deg 90deg auto"
-        field-of-view="10deg">
+        alt="A 3D model forced into a 2D perspective">
     </model-viewer>
+
+    <script>
+        const player = document.getElementById('player');
+        const speed = 7; // Pixels per frame
+        
+        // Track key states for smooth diagonal movement
+        const keys = {
+            w: false,
+            a: false,
+            s: false,
+            d: false
+        };
+
+        // Movement variables
+        let posX = 50;
+        let posY = 50;
+
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) keys[key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (keys.hasOwnProperty(key)) keys[key] = false;
+        });
+
+        function update() {
+            if (keys.w) posY += speed;
+            if (keys.s) posY -= speed;
+            if (keys.a) {
+                posX -= speed;
+                player.cameraOrbit = "180deg 75deg 10m"; // Flip "sprite" left
+            }
+            if (keys.d) {
+                posX += speed;
+                player.cameraOrbit = "0deg 75deg 10m"; // Flip "sprite" right
+            }
+
+            // Update CSS position
+            player.style.bottom = posY + 'px';
+            player.style.left = posX + 'px';
+
+            requestAnimationFrame(update);
+        }
+
+        // Start the game loop
+        update();
+    </script>
 
 </body>
 </html>

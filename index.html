@@ -3,75 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Character Controller</title>
+    <title>2D Side-Scroller Controller</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body { 
             margin: 0; 
-            background-color: #333; 
-            overflow: hidden; /* Prevent scrollbars during movement */
+            background-color: #222; 
+            overflow: hidden;
             height: 100vh;
             width: 100vw;
         }
 
-        /* We treat the model-viewer like a 2D sprite */
         model-viewer {
-            width: 300px;
-            height: 300px;
+            width: 350px;
+            height: 350px;
             position: absolute;
             bottom: 50px;
             left: 50px;
-            --poster-color: transparent;
+            /* Removes the default white flash on load */
+            --poster-color: transparent; 
         }
 
-        .instructions {
+        .ui {
             position: fixed;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: sans-serif;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 5px;
+            top: 20px;
+            left: 20px;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
             pointer-events: none;
+            text-shadow: 2px 2px #000;
         }
     </style>
 </head>
 <body>
 
-    <div class="instructions">Use <b>WASD</b> to move your character</div>
+    <div class="ui">STATUS: OPERATIONAL<br>INPUT: WASD TO MOVE</div>
 
-    <!-- 
-        Field-of-view set to 0 or very low creates an orthographic (2D) effect.
-        interaction-prompt="none" disables the hand icon.
-    -->
     <model-viewer 
         id="player"
         src="idle.glb" 
         shadow-intensity="1" 
         autoplay
-        field-of-view="10deg"
+        /* 1. Low FOV creates the "flat" 2D look */
+        field-of-view="12deg"
+        /* 2. 90deg starts the camera at the side profile */
+        camera-orbit="90deg 75deg 10m"
         interaction-prompt="none"
-        camera-orbit="0deg 75deg 10m"
-        disable-zoom
-        alt="A 3D model forced into a 2D perspective">
+        disable-zoom>
     </model-viewer>
 
     <script>
         const player = document.getElementById('player');
-        const speed = 7; // Pixels per frame
+        const speed = 8;
         
-        // Track key states for smooth diagonal movement
-        const keys = {
-            w: false,
-            a: false,
-            s: false,
-            d: false
-        };
-
-        // Movement variables
-        let posX = 50;
-        let posY = 50;
+        const keys = { w: false, a: false, s: false, d: false };
+        let posX = 100;
+        let posY = 100;
 
         window.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
@@ -83,28 +70,29 @@
             if (keys.hasOwnProperty(key)) keys[key] = false;
         });
 
-        function update() {
+        function gameLoop() {
             if (keys.w) posY += speed;
             if (keys.s) posY -= speed;
+            
             if (keys.a) {
                 posX -= speed;
-                player.cameraOrbit = "180deg 75deg 10m"; // Flip "sprite" left
+                // Look Left (270 degrees)
+                player.cameraOrbit = "270deg 75deg 10m";
             }
             if (keys.d) {
                 posX += speed;
-                player.cameraOrbit = "0deg 75deg 10m"; // Flip "sprite" right
+                // Look Right (90 degrees)
+                player.cameraOrbit = "90deg 75deg 10m";
             }
 
-            // Update CSS position
+            // Apply movement to the element
             player.style.bottom = posY + 'px';
             player.style.left = posX + 'px';
 
-            requestAnimationFrame(update);
+            requestAnimationFrame(gameLoop);
         }
 
-        // Start the game loop
-        update();
+        gameLoop();
     </script>
-
 </body>
 </html>

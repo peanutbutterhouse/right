@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Idle Model</title>
+    <title>2D Forced Model</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; background-color: #1a1a1a; }
+        body { margin: 0; background-color: #1a1a1a; overflow: hidden; }
         model-viewer {
             width: 100%;
             height: 100vh;
             display: block;
+            /* Optional: Add a slight brightness or contrast to make it pop like a sprite */
+            filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
         }
     </style>
 </head>
@@ -18,11 +20,14 @@
 
     <model-viewer 
         src="idle.glb" 
-        camera-controls 
-        auto-rotate 
-        shadow-intensity="1" 
         autoplay
-        ar>
+        shadow-intensity="0"
+        interaction-prompt="none"
+        camera-controls="false"
+        disable-zoom
+        orbit-sensitivity="0"
+        camera-orbit="0deg 90deg auto"
+        field-of-view="10deg">
     </model-viewer>
 
 </body>
